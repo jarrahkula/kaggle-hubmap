@@ -1,0 +1,14 @@
+.directory
+*.swp
+*.swo
+
+*.pt
+*.gt
+*.ot
+*.pth
+
+data/
+
+.ipynb_checkpoints
+
+
