@@ -7,7 +7,7 @@
 *.ot
 *.pth
 
-data/
+data/image/
 
 .ipynb_checkpoints
 
