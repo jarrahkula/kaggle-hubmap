@@ -4,10 +4,12 @@
 
 *.pt
 *.gt
-*.ot
 *.pth
+*.zip
 
 data/image/
+unet-resnet34/
+hubmap-resnet34-unet/
 
 .ipynb_checkpoints
 
