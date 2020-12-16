@@ -7,19 +7,6 @@ import (
 	"path/filepath"
 )
 
-var (
-// DataPath      string = "./input/hubmap-kidney-segmentation"
-// TrainPath     string = "./input/hubmap-kidney-segmentation/train"
-// TestPath      string = "./input/hubmap-kidney-segmentation/test"
-// MaskPath      string = "./input/mask"
-// TileImagePath string = "./input/tile/image"
-// TestImagePath string = "./input/test/image"
-// TileMaskPath  string = "./input/tile/mask"
-// TestMaskPath  string = "./input/test/mask"
-// Reduction     int    = 4
-// TileSize      int    = 256
-)
-
 // flag variables
 var (
 	DataPath  string

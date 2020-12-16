@@ -13,7 +13,6 @@ import (
 )
 
 func loadModel() {
-
 	// Create the model and load the weights from the file.
 	modelPath, err := filepath.Abs(ModelPath)
 	if err != nil {
@@ -302,7 +301,7 @@ func ResNet34Unet(p *nn.Path, train bool) nn.FuncT {
 
 func runCheckModel() {
 	// Create the model and load the weights from the file.
-	modelPath, err := filepath.Abs("./model/resnet34/resnet34.ot")
+	modelPath, err := filepath.Abs(ModelPath)
 	if err != nil {
 		log.Fatal(err)
 	}
