@@ -77,17 +77,7 @@ func runTrain() {
 		trainFiles = append(trainFiles, f.Name())
 	}
 
-	var device gotch.Device
-	switch Device {
-	case "CPU":
-		device = gotch.CPU
-	case "GPU":
-		device = gotch.NewCuda().CudaIfAvailable()
-	default:
-		device = gotch.CPU
-	}
-
-	vs := nn.NewVarStore(device)
+	vs := nn.NewVarStore(Device)
 	net := loadResNetUnetModel(vs)
 
 	trainDS := NewHubmapDataset(trainFiles)
@@ -110,7 +100,7 @@ func runTrain() {
 	for trainDL.HasNext() {
 		// Validate
 		if count != 0 && count%ValidateSize == 0 {
-			doValidate(net, device)
+			doValidate(net, Device)
 		}
 		s, err := trainDL.Next()
 		if err != nil {
@@ -151,15 +141,15 @@ func runTrain() {
 			log.Fatal(err)
 		}
 
-		if Device == "CPU" {
+		if Device == gotch.CPU {
 			si = CPUInfo()
 			startRAM = si.TotalRam - si.FreeRam
 		}
-		input := imgTs.MustTo(device, true)
+		input := imgTs.MustTo(Device, true)
 		logit := net.ForwardT(input, true)
 		input.MustDrop()
 		pred := logit.MustTotype(gotch.Double, true)
-		target := maskTs.MustTo(device, true)
+		target := maskTs.MustTo(Device, true)
 
 		loss := criterionBinaryCrossEntropy(pred, target)
 		pred.MustDrop()
@@ -170,7 +160,7 @@ func runTrain() {
 		fmt.Printf("loss: %v", loss)
 		loss.MustDrop()
 
-		if Device == "CPU" {
+		if Device == gotch.CPU {
 			si = CPUInfo()
 			fmt.Printf("Batch %v\t Used: [%8.2f MiB]\n", count, (float64(si.TotalRam-si.FreeRam)-float64(startRAM))/1024)
 		}

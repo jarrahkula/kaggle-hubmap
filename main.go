@@ -5,6 +5,8 @@ import (
 	"fmt"
 	"log"
 	"path/filepath"
+
+	"github.com/sugarme/gotch"
 )
 
 // flag variables
@@ -12,8 +14,9 @@ var (
 	DataPath  string
 	OptStr    string
 	ModelPath string
-	Device    string
+	Cuda      bool
 	task      string
+	Device    gotch.Device
 )
 
 // hyperparameters
@@ -28,7 +31,7 @@ var (
 func init() {
 	flag.StringVar(&DataPath, "input", "./input", "specify input data directory")
 	flag.StringVar(&ModelPath, "model", "./model/resnet34.ot", "specify full path to model weight '.ot' file.")
-	flag.StringVar(&Device, "device", "CPU", "specify device i.e. CPU or GPU to run.")
+	flag.BoolVar(&Cuda, "cuda", false, "specify whether using CUDA or not.")
 	flag.StringVar(&task, "task", "train", "specify task to run")
 	flag.Float64Var(&LR, "lr", 0.001, "specify learning rate")
 	flag.IntVar(&Reduction, "reduction", 4, "specify image resolution reduction times")
@@ -44,7 +47,14 @@ func main() {
 	DataPath = absPath(DataPath)
 	ModelPath = absPath(ModelPath)
 
+	Device = gotch.CPU
+	if Cuda {
+		Device = gotch.NewCuda().CudaIfAvailable()
+	}
+
 	switch task {
+	case "model":
+		runCheckModel()
 	case "train":
 		runTrain()
 	case "eda":

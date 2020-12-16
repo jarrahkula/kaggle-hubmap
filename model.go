@@ -306,8 +306,7 @@ func runCheckModel() {
 		log.Fatal(err)
 	}
 
-	device := gotch.CPU
-	vs := nn.NewVarStore(device)
+	vs := nn.NewVarStore(Device)
 	net := ResNet34Unet(vs.Root(), true)
 
 	_, err = vs.LoadPartial(modelPath)
@@ -317,25 +316,35 @@ func runCheckModel() {
 
 	// Pytorch equivalent to `np.random.choice()`
 	// Ref. https://discuss.pytorch.org/t/torch-equivalent-of-numpy-random-choice/16146/13
-	batchSize := int64(4)
+	batchSize := int64(36)
 	imageSize := int64(256)
-	a := []int64{0, 1}                       // values
-	p := []float64{0.5, 0.5}                 // probability
-	n := (batchSize * imageSize * imageSize) // size
-	replace := true
-
-	aTs := ts.MustOfSlice(a)
-	pTs := ts.MustOfSlice(p)
-	idx := pTs.MustMultinomial(n, replace, true)
-	mask := aTs.MustIndex([]ts.Tensor{*idx}, true).MustView([]int64{batchSize, imageSize, imageSize}, true).MustTotype(gotch.Double, true)
+	// a := []int64{0, 1}                       // values
+	// p := []float64{0.5, 0.5}                 // probability
+	// n := (batchSize * imageSize * imageSize) // size
+	// replace := true
+	// aTs := ts.MustOfSlice(a)
+	// pTs := ts.MustOfSlice(p)
+	// idx := pTs.MustMultinomial(n, replace, true)
+	// mask := aTs.MustIndex([]ts.Tensor{*idx}, true).MustView([]int64{batchSize, imageSize, imageSize}, true).MustTotype(gotch.Double, true)
 	image := ts.MustRand([]int64{batchSize, 3, imageSize, imageSize}, gotch.Float, gotch.CPU)
-	fmt.Printf("image: %i\n", image)
-	logit := net.ForwardT(image, false).MustTotype(gotch.Double, true)
-
-	loss := criterionBinaryCrossEntropy(logit, mask)
-
-	fmt.Printf("mask: %v\n", mask.MustSize())
-	fmt.Printf("image: %v\n", image.MustSize())
-	fmt.Printf("logit: %v\n", logit.MustSize())
-	fmt.Printf("loss: %v\n", loss)
+	// fmt.Printf("image: %i\n", image)
+	si := CPUInfo()
+	for i := 0; i < 100; i++ {
+		ts.NoGrad(func() {
+			si = CPUInfo()
+			ram0 := si.TotalRam - si.FreeRam
+			logit := net.ForwardT(image, false).MustTotype(gotch.Double, true)
+			// loss := criterionBinaryCrossEntropy(logit, mask)
+			// fmt.Printf("mask: %v\n", mask.MustSize())
+			// fmt.Printf("image: %v\n", image.MustSize())
+			// fmt.Printf("logit: %v\n", logit.MustSize())
+			// l := loss.Float64Values()[0]
+			logit.MustDrop()
+			// loss.MustDrop()
+			si = CPUInfo()
+			ram1 := si.TotalRam - si.FreeRam
+			fmt.Printf("%02d- Leak: %8.2fMB\n", i, float64(ram1-ram0)/1024)
+			// fmt.Printf("%02d-Leak: %6.2fMB\t Loss: %v\n", i, float64(ram1-ram0)/1024, l)
+		})
+	}
 }
