@@ -309,9 +309,13 @@ func runCheckModel() {
 	vs := nn.NewVarStore(Device)
 	net := ResNet34Unet(vs.Root(), true)
 
-	_, err = vs.LoadPartial(modelPath)
+	missings, err := vs.LoadPartial(modelPath)
 	if err != nil {
 		log.Fatal(err)
+	}
+	fmt.Printf("Num of missings: %v\n", len(missings))
+	for _, m := range missings {
+		fmt.Printf("Missing Var: %v\n", m)
 	}
 
 	// Pytorch equivalent to `np.random.choice()`

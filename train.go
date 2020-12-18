@@ -12,6 +12,8 @@ import (
 	"github.com/sugarme/gotch/nn"
 	ts "github.com/sugarme/gotch/tensor"
 	"github.com/sugarme/gotch/vision"
+
+	"github.com/sugarme/iseg/unet"
 )
 
 func loadResNetUnetModel(vs *nn.VarStore) nn.FuncT {
@@ -22,7 +24,8 @@ func loadResNetUnetModel(vs *nn.VarStore) nn.FuncT {
 
 	// device := gotch.CPU
 	// vs := nn.NewVarStore(device)
-	net := ResNet34Unet(vs.Root(), true)
+	// net := ResNet34Unet(vs.Root(), true)
+	net := unet.DefaultUNet(vs)
 
 	_, err = vs.LoadPartial(modelPath)
 	if err != nil {
